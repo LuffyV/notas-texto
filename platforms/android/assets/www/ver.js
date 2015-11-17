@@ -1,12 +1,13 @@
 document.addEventListener("deviceready", onDeviceReady, false);
+var filesystem = null;
 
 function onDeviceReady() {
     window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFileSystemSuccess, fail);
 }
 
-function onFileSystemSuccess(fileSystem) {
+function onFileSystemSuccess(filesystem) {
     // aquí se señala en qué carpeta buscas, si la encuentra, sigue
-    fileSystem.root.getDirectory("proyecto", {create: false, exclusive: false}, getDirSuccess, fail);
+    filesystem.root.getDirectory("proyecto", {create: false, exclusive: false}, getDirSuccess, fail);
 }
 
 function getDirSuccess(dirEntry) {
@@ -62,21 +63,21 @@ function colorearSeleccion(seleccionado){
 }
 
 function borraArchivo(){
-    var titulo = document.getElementById(ultimaFila).innerText;
-    if(titulo != "undefined"){
-        deleteFile(titulo + ".txt");
-    } else {
-        alert("No se está seleccionando un archivo para borrar.");
-    }
+  var titulo = document.getElementById(ultimaFila).innerText;
+  if(titulo!= ""){
+    deleteFile(titulo + ".txt");
+  } else {
+    alert("No se está seleccionando un archivo para borrar.");
+  }
 }
 
 function deleteFile(filename){
-    var direccionArchivo = "proyecto/" + filename;
-    alert("Se va a intentar borrar el archivo: " + direccionArchivo); 
-    fileSystem.root.getFile(direccionArchivo, {create: true}, function(fileEntry) {
-        fileEntry.remove();
-    });
-    alert("Se debió haber borrado el " + filename);
+  var direccionArchivo = "proyecto/" + filename;
+   alert("Se debería borrar el archivo: proyecto/" + filename);
+  filesystem.root.getFile(direccionArchivo, {create: true}, function(fileEntry) {
+   fileEntry.remove();
+ });
+  alert("Se borró el archivo: " + filename);
 }
 
 function mostrarArchivo(){

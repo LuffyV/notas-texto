@@ -1,3 +1,7 @@
+textarea {
+	width: 100%;
+}
+
 #mas, #menos {
 	display: inline;
 	height: 100px;
