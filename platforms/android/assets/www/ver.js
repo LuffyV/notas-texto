@@ -1,12 +1,15 @@
 document.addEventListener("deviceready", onDeviceReady, false);
+var FileSystem = null;
+
 
 function onDeviceReady() {
-    localStorage.archivoTextoTitulo = "TituloEjemplo";
-    localStorage.archivoTextoContenido = "ContenidoEjemplo";
+    localStorage.archivoTextoTitulo = "";
+    localStorage.archivoTextoContenido = "";
     window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFileSystemSuccess, fail);
 }
 
 function onFileSystemSuccess(filesystem) {
+    FileSystem = filesystem;
     // aquí se señala en qué carpeta buscas, si la encuentra, sigue
     filesystem.root.getDirectory("proyecto", {create: false, exclusive: false}, getDirSuccess, fail);
 }
@@ -27,7 +30,7 @@ function readerSuccess(entries) {
     for (i=0; i<entries.length; i++) {
         lista.innerHTML +=
         "<div class=\"lista\" id=\""+i+"\" onclick=clickMostrar("+i+");>" + 
-            "<img src=\"img/repoop.png\">" + entries[i].name.slice(0, -4) + // el slice le quita la terminación
+            "<img src=\"img/pencil.gif\">" + entries[i].name.slice(0, -4) + // el slice le quita la terminación
         "</div><br>";
     }
 }
@@ -46,10 +49,8 @@ function clickMostrar(fila){
     if(ultimaFila == fila){
         toques++;
         if(toques == 2){
-            // dos toques en el mismo div
-
+            // aquí ya se hicieron dos toques en el mismo div
             window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, mostrarArchivo, fail);
-            readFile();
         }
     } else {
         toques = 1;
@@ -58,11 +59,32 @@ function clickMostrar(fila){
     divSeleccionado = ultimaFila;
 }
 
+function mostrarArchivo(FileSystem){
+    var archivoPorMostrar = document.getElementById(divSeleccionado).innerText;
+
+    FileSystem.root.getFile("proyecto/" + archivoPorMostrar + ".txt" , null, function (fileEntry) {
+        fileEntry.file(function (file) {
+            var reader = new FileReader();
+
+            reader.onloadend = function(e) {
+                var contenido = this.result;
+                localStorage.archivoTextoContenido = contenido;
+            };
+            reader.readAsText(file);
+        });
+    });
+
+     setTimeout(function(){
+        localStorage.archivoTextoTitulo = archivoPorMostrar;
+        window.location = "escribir.html";
+    }, 500);
+}
+
 function colorearSeleccion(seleccionado){
     for (var i = 0; i < divsTotales; i++) {
         document.getElementById(i).style.color = "black";
     }
-    document.getElementById(seleccionado).style.color = "LightBlue";
+    document.getElementById(seleccionado).style.color = "Red";
 }
 
 function borraArchivo(){
@@ -86,51 +108,6 @@ function borrarFinal(filesystem){
     });
   alert("Se ha borrado con éxito el archivo: " + direccionArchivo);
   window.location.reload();
-}
-
-function readFile() {
-    alert("Entra a readFile");
-    var content = null;
-    var archivoPorMostrar = document.getElementById(divSeleccionado).innerText;
-    alert("El archivo para mostrar: " + archivoPorMostrar);
-    filesystem.root.getFile(archivoPorMostrar + '.txt', {}, function (fileEntry) {
-
-        // Get a File object representing the file,
-        // then use FileReader to read its contents.
-        fileEntry.file(function (file) {
-            var reader = new FileReader();
-
-            reader.onloadend = function (e) {
-                content = String(this.result);
-                alert(content);
-            };
-            reader.readAsText(file);
-
-        }, fail);
-
-    }, fail);
-}
-
-function mostrarArchivo(filesystem){
-    alert("Entra a mostrarArchivo");
-    var archivoPorMostrar = document.getElementById(divSeleccionado).innerText;
-    var content = "";
-
-    filesystem.root.getFile(archivoPorMostrar + ".txt", null, function(fileEntry){
-        fileEntry.file(function(file){
-            alert("Entra al fileEntry");
-            var reader = new FileReader();
-            reader.onloadend = function (e){
-                content = String(this.result);
-                alert("El contenido de esta nota es: " + content);
-            };
-            reader.readAsText(file);
-        }, fail);
-    }, fail);
-
-    localStorage.archivoTextoTitulo = archivoPorMostrar;
-    localStorage.archivoTextoContenido = content;
-    // window.location = "escribir.html";
 }
 
 function fail(error) {

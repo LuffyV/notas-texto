@@ -24,6 +24,11 @@ function saveFile(filename, content) {
 
       fileWriter.onwriteend = function(e) { 
         messageBox.innerHTML = 'Se ha guardado el archivo!';
+        // necesita tener un delay
+        // si se redirecciona directamente, no se guarda el texto en el contenido del archivo
+        setTimeout(function(){
+          window.location = "index.html";
+        }, 500);
       };
 
       fileWriter.onerror = function(e) {
@@ -34,11 +39,6 @@ function saveFile(filename, content) {
     }, errorHandler);
 
   }, errorHandler);
-  // necesita tener un delay
-  // si se redirecciona directamente, no se guarda el texto en el contenido del archivo
-  setTimeout(function(){
-    window.location = "index.html";
-  }, 500);
 }
 
 function deviceReady(){
