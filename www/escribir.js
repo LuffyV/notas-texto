@@ -1,4 +1,3 @@
-
 document.addEventListener("deviceready", deviceReady, false);
 var filesystem = null;
 var messageBox;
@@ -35,30 +34,22 @@ function saveFile(filename, content) {
     }, errorHandler);
 
   }, errorHandler);
-  window.location.href = "index.html";
-}
-
-function borraArchivo(){
-  var titulo = document.getElementById("titulo").value;
-  if(titulo!= ""){
-    deleteFile(titulo + ".txt");
-  } else {
-    alert("No se está seleccionando un archivo para borrar.");
-  }
-}
-
-function deleteFile(filename){
-  var direccionArchivo = "proyecto/" + filename;
-  filesystem.root.getFile(direccionArchivo, {create: true}, function(fileEntry) {
-   fileEntry.remove();
- });
-  messageBox.innerHTML = "Se borró el archivo: " + filename;
+  // necesita tener un delay
+  // si se redirecciona directamente, no se guarda el texto en el contenido del archivo
+  setTimeout(function(){
+    window.location = "index.html";
+  }, 500);
 }
 
 function deviceReady(){
   // Allow for vendor prefixes.
   window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
   messageBox = document.getElementById('messages');
+  
+  var titulo = document.getElementById("titulo");
+  var contenido = document.getElementById("contenido");
+  titulo.value = localStorage.archivoTextoTitulo;
+  contenido.value = localStorage.archivoTextoContenido;
   
   // Start the app by requesting a FileSystem (if the browser supports the API)
   if (window.requestFileSystem) {
